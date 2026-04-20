@@ -40,6 +40,9 @@ Machine-readable status:
 SwiftBar updates the same router state used by the CLI. Selecting a profile in
 the taskbar changes what `--provider active --profile active` uses.
 
+The `Local Review` toggle only applies to the LM Studio local-review script.
+Codex and Antigravity routes are called explicitly through `review-router.sh`.
+
 ## Account Setup
 
 Use the SwiftBar setup/launch actions for each account label. Account labels are

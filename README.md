@@ -13,8 +13,8 @@ It is built around two surfaces that share the same state:
 ## What It Does
 
 - Switch Claude Code between cloud and local LM Studio mode.
-- Show current mode, local model, reviewer route, and last reviewer result in
-  the macOS menu bar.
+- Show current mode, local model, local-review toggle, reviewer route, and last
+  reviewer result in the macOS menu bar.
 - Route Claude Code review/agent calls to:
   - Codex profile slots
   - Antigravity profile slots
@@ -88,7 +88,7 @@ Claude Code must be restarted after switching cloud/local mode.
 
 ## Claude Code Usage
 
-Use the taskbar-selected reviewer route:
+Use the taskbar-selected account/API/local reviewer route:
 
 ```bash
 ~/.agent-control-tb/bin/review-router.sh \
@@ -138,6 +138,12 @@ Clear actions move profile directories into:
 ```
 
 They do not touch your default Codex or Antigravity profiles.
+
+## Local Review Toggle
+
+The `Local Review` toggle only gates the LM Studio local review script. Codex
+and Antigravity reviewer routes are invoked explicitly by Claude Code through
+`review-router.sh`; they are not controlled by the local review toggle.
 
 ## Security
 

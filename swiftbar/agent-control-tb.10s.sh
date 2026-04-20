@@ -55,9 +55,9 @@ else
 fi
 
 if [ "$REVIEW" = "true" ]; then
-    echo "Review: ON | color=#00AA44"
+    echo "Local Review: ON | color=#00AA44"
 else
-    echo "Review: OFF | color=#888888"
+    echo "Local Review: OFF | color=#888888"
 fi
 
 echo "Model: $ACTIVE_MODEL | color=#888888"
@@ -113,11 +113,11 @@ else
     done <<< "$ALL_LLMS"
 fi
 
-echo "Review Loop | color=#888888"
+echo "Local Review | color=#888888"
 if [ "$REVIEW" = "true" ]; then
-    echo "--Toggle Review Off | bash=$BASE_DIR/bin/toggle-review.sh terminal=false refresh=true"
+    echo "--Toggle Local Review Off | bash=$BASE_DIR/bin/toggle-review.sh terminal=false refresh=true"
 else
-    echo "--Toggle Review On | bash=$BASE_DIR/bin/toggle-review.sh terminal=false refresh=true"
+    echo "--Toggle Local Review On | bash=$BASE_DIR/bin/toggle-review.sh terminal=false refresh=true"
 fi
 echo "--Open Reviewer Status | bash=/usr/bin/open param1=$BASE_DIR/state/agent-router-status.md terminal=false"
 echo "--Open Reviewer Reports | bash=/usr/bin/open param1=$BASE_DIR/reports terminal=false"
