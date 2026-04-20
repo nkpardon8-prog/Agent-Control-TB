@@ -1,0 +1,60 @@
+{
+  "default_route": {
+    "provider": "active",
+    "profile": "active"
+  },
+  "auto_order": [
+    {
+      "provider": "codex",
+      "profile": "gpt-pro-1"
+    },
+    {
+      "provider": "antigravity",
+      "profile": "google-pro-1"
+    },
+    {
+      "provider": "local",
+      "profile": "local-qwen"
+    }
+  ],
+  "profiles": {
+    "codex": {
+      "gpt-pro-1": {
+        "label": "GPT Pro 1",
+        "codex_home": "~/.agent-control-tb/profiles/codex/gpt-pro-1"
+      },
+      "gpt-pro-2": {
+        "label": "GPT Pro 2",
+        "codex_home": "~/.agent-control-tb/profiles/codex/gpt-pro-2"
+      }
+    },
+    "antigravity": {
+      "google-pro-1": {
+        "label": "Google Pro 1",
+        "user_data_dir": "~/.agent-control-tb/profiles/antigravity/google-pro-1",
+        "profile_name": "Google Pro 1"
+      },
+      "google-pro-2": {
+        "label": "Google Pro 2",
+        "user_data_dir": "~/.agent-control-tb/profiles/antigravity/google-pro-2",
+        "profile_name": "Google Pro 2"
+      },
+      "google-pro-3": {
+        "label": "Google Pro 3",
+        "user_data_dir": "~/.agent-control-tb/profiles/antigravity/google-pro-3",
+        "profile_name": "Google Pro 3"
+      }
+    },
+    "local": {
+      "local-qwen": {
+        "label": "Local Qwen",
+        "backend": "lmstudio"
+      }
+    }
+  },
+  "commands": {
+    "codex": "codex",
+    "antigravity": "/Applications/Antigravity.app/Contents/Resources/app/bin/antigravity",
+    "local_review": "~/.agent-control-tb/bin/local-review.py"
+  }
+}

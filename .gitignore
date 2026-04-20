@@ -1,0 +1,28 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+*.bak
+*.tmp
+
+# Runtime state: never commit these.
+state/
+logs/
+reports/
+profiles/
+backups/
+
+# Local generated configs may contain machine-specific paths.
+config/config.json
+config/router.json
+
+# Common auth/token stores.
+auth.json
+credentials.json
+token.json
+cookies*
+*.sqlite
+*.db
+*.key
+*.pem
+*.p12
+*.mobileprovision
