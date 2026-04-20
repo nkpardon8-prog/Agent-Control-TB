@@ -11,7 +11,7 @@ REVIEW=$(/bin/cat "$BASE_DIR/state/review_enabled" 2>/dev/null || echo "false")
 ACTIVE_MODEL=$(/usr/bin/python3 -c "import json; print(json.load(open('$BASE_DIR/config/config.json'))['local_model'])" 2>/dev/null || echo "unknown")
 BASE_URL=$(/usr/bin/python3 -c "import json; print(json.load(open('$BASE_DIR/config/config.json'))['lmstudio_base_url'])" 2>/dev/null || echo "http://127.0.0.1:1234")
 ROUTER_STATUS=$(
-/usr/bin/python3 - "$BASE_DIR/state/router-state.json" "$BASE_DIR/config/router.json" 2>/dev/null <<'PY' || echo "local|local-qwen|Local Qwen|not run|Router state unavailable"
+/usr/bin/python3 - "$BASE_DIR/state/router-state.json" "$BASE_DIR/config/router.json" 2>/dev/null <<'PY' || echo "local|local-qwen|Local Qwen|not run|Reviewer state unavailable"
 import json
 import sys
 
@@ -34,7 +34,7 @@ if /usr/bin/curl -s --max-time 1 "$BASE_URL/v1/models" > /dev/null 2>&1; then
     LMS_UP="true"
 fi
 
-# --- Menu bar title (clear, colored) ---
+# --- Menu bar title: mode only ---
 if [ "$MODE" = "local" ]; then
     if [ "$LMS_UP" = "true" ]; then
         echo "⚡ LOCAL | color=#00AA44 dropdown=true"
@@ -70,79 +70,73 @@ fi
 
 echo "---"
 
-# --- Mode switch ---
+# --- Claude mode ---
+echo "Claude Mode | color=#888888"
 if [ "$MODE" = "local" ]; then
-    echo "✓ Local (active) | color=#00AA44"
-    echo "  Switch to Cloud ☁ | bash=$BASE_DIR/bin/switch-cloud.sh terminal=false refresh=true"
+    echo "--✓ Local active | color=#00AA44"
+    echo "--Switch to Cloud ☁ | bash=$BASE_DIR/bin/switch-cloud.sh terminal=false refresh=true"
+    echo "--Re-apply Local Mode | bash=$BASE_DIR/bin/switch-local.sh terminal=false refresh=true"
 else
-    echo "✓ Cloud (active) | color=#0099FF"
-    echo "  Switch to Local ⚡ | bash=$BASE_DIR/bin/switch-local.sh terminal=false refresh=true"
+    echo "--✓ Cloud active | color=#0099FF"
+    echo "--Switch to Local ⚡ | bash=$BASE_DIR/bin/switch-local.sh terminal=false refresh=true"
 fi
 
-echo "---"
+echo "Reviewer | color=#888888"
+echo "--Active: $ROUTER_LABEL ($ROUTER_PROVIDER/$ROUTER_PROFILE) | color=#00AA44"
+if [ -n "$ROUTER_MESSAGE" ]; then
+    echo "--Last: $ROUTER_MESSAGE | color=#888888"
+fi
+echo "--Use Auto Reviewer | bash=$BASE_DIR/bin/set-review-route.sh param1=auto param2=auto terminal=false refresh=true"
+echo "--Use Local: Qwen | bash=$BASE_DIR/bin/set-review-route.sh param1=local param2=local-qwen terminal=false refresh=true"
+echo "--Codex | color=#888888"
+echo "----Use GPT Pro 1 | bash=$BASE_DIR/bin/set-review-route.sh param1=codex param2=gpt-pro-1 terminal=false refresh=true"
+echo "----Use GPT Pro 2 | bash=$BASE_DIR/bin/set-review-route.sh param1=codex param2=gpt-pro-2 terminal=false refresh=true"
+echo "--Antigravity | color=#888888"
+echo "----Use Google Pro 1 | bash=$BASE_DIR/bin/set-review-route.sh param1=antigravity param2=google-pro-1 terminal=false refresh=true"
+echo "----Use Google Pro 2 | bash=$BASE_DIR/bin/set-review-route.sh param1=antigravity param2=google-pro-2 terminal=false refresh=true"
+echo "----Use Google Pro 3 | bash=$BASE_DIR/bin/set-review-route.sh param1=antigravity param2=google-pro-3 terminal=false refresh=true"
 
-# --- Models ---
-echo "── Models ── | color=#888888"
-
+echo "Local Models | color=#888888"
 ALL_LLMS=$("$LMS_BIN" ls 2>/dev/null | grep "variant" | sed 's/ (.*variant.*//' | awk '{$1=$1; print}')
 LOADED=$("$LMS_BIN" ps 2>/dev/null | awk 'NF>0 && $1 != "IDENTIFIER" {print $1}')
 
 if [ -z "$ALL_LLMS" ]; then
-    echo "No models installed | color=#888888"
+    echo "--No models installed | color=#888888"
 else
     while IFS= read -r model; do
         [ -z "$model" ] && continue
         if echo "$LOADED" | grep -qF "$model"; then
-            echo "● $model | bash=$BASE_DIR/bin/eject-model.sh param1=$model terminal=false refresh=true color=#00AA44"
+            echo "--● $model | bash=$BASE_DIR/bin/eject-model.sh param1=$model terminal=false refresh=true color=#00AA44"
         else
-            echo "○ $model | bash=$BASE_DIR/bin/load-model.sh param1=$model terminal=true refresh=true color=#888888"
+            echo "--○ $model | bash=$BASE_DIR/bin/load-model.sh param1=$model terminal=true refresh=true color=#888888"
         fi
     done <<< "$ALL_LLMS"
 fi
 
-echo "---"
-
-# --- Reviewer router ---
-echo "── Reviewer Control ── | color=#888888"
-echo "Active: $ROUTER_LABEL ($ROUTER_PROVIDER/$ROUTER_PROFILE) | color=#00AA44"
-if [ -n "$ROUTER_MESSAGE" ]; then
-    echo "Last: $ROUTER_MESSAGE | color=#888888"
-fi
-echo "Use Auto Reviewer | bash=$BASE_DIR/bin/set-review-route.sh param1=auto param2=auto terminal=false refresh=true"
-echo "Use Codex: GPT Pro 1 | bash=$BASE_DIR/bin/set-review-route.sh param1=codex param2=gpt-pro-1 terminal=false refresh=true"
-echo "Use Codex: GPT Pro 2 | bash=$BASE_DIR/bin/set-review-route.sh param1=codex param2=gpt-pro-2 terminal=false refresh=true"
-echo "Use Antigravity: Google Pro 1 | bash=$BASE_DIR/bin/set-review-route.sh param1=antigravity param2=google-pro-1 terminal=false refresh=true"
-echo "Use Antigravity: Google Pro 2 | bash=$BASE_DIR/bin/set-review-route.sh param1=antigravity param2=google-pro-2 terminal=false refresh=true"
-echo "Use Antigravity: Google Pro 3 | bash=$BASE_DIR/bin/set-review-route.sh param1=antigravity param2=google-pro-3 terminal=false refresh=true"
-echo "Use Local: Qwen | bash=$BASE_DIR/bin/set-review-route.sh param1=local param2=local-qwen terminal=false refresh=true"
-echo "Setup Codex: GPT Pro 1 | bash=$BASE_DIR/bin/setup-review-profile.sh param1=codex param2=gpt-pro-1 terminal=true refresh=true"
-echo "Setup Codex: GPT Pro 2 | bash=$BASE_DIR/bin/setup-review-profile.sh param1=codex param2=gpt-pro-2 terminal=true refresh=true"
-echo "Launch Antigravity: Google Pro 1 | bash=$BASE_DIR/bin/setup-review-profile.sh param1=antigravity param2=google-pro-1 terminal=false refresh=true"
-echo "Launch Antigravity: Google Pro 2 | bash=$BASE_DIR/bin/setup-review-profile.sh param1=antigravity param2=google-pro-2 terminal=false refresh=true"
-echo "Launch Antigravity: Google Pro 3 | bash=$BASE_DIR/bin/setup-review-profile.sh param1=antigravity param2=google-pro-3 terminal=false refresh=true"
-echo "Clear Codex: GPT Pro 1 | bash=$BASE_DIR/bin/clear-review-profile.sh param1=codex param2=gpt-pro-1 terminal=true refresh=true"
-echo "Clear Codex: GPT Pro 2 | bash=$BASE_DIR/bin/clear-review-profile.sh param1=codex param2=gpt-pro-2 terminal=true refresh=true"
-echo "Clear Antigravity: Google Pro 1 | bash=$BASE_DIR/bin/clear-review-profile.sh param1=antigravity param2=google-pro-1 terminal=true refresh=true"
-echo "Clear Antigravity: Google Pro 2 | bash=$BASE_DIR/bin/clear-review-profile.sh param1=antigravity param2=google-pro-2 terminal=true refresh=true"
-echo "Clear Antigravity: Google Pro 3 | bash=$BASE_DIR/bin/clear-review-profile.sh param1=antigravity param2=google-pro-3 terminal=true refresh=true"
-echo "Open Reviewer Status | bash=/usr/bin/open param1=$BASE_DIR/state/agent-router-status.md terminal=false"
-echo "Open Reviewer Reports | bash=/usr/bin/open param1=$BASE_DIR/reports terminal=false"
-
-echo "---"
-
-# --- Review toggle ---
+echo "Review Loop | color=#888888"
 if [ "$REVIEW" = "true" ]; then
-    echo "Review: ON — Toggle Off | bash=$BASE_DIR/bin/toggle-review.sh terminal=false refresh=true"
+    echo "--Toggle Review Off | bash=$BASE_DIR/bin/toggle-review.sh terminal=false refresh=true"
 else
-    echo "Review: OFF — Toggle On | bash=$BASE_DIR/bin/toggle-review.sh terminal=false refresh=true"
+    echo "--Toggle Review On | bash=$BASE_DIR/bin/toggle-review.sh terminal=false refresh=true"
 fi
+echo "--Open Reviewer Status | bash=/usr/bin/open param1=$BASE_DIR/state/agent-router-status.md terminal=false"
+echo "--Open Reviewer Reports | bash=/usr/bin/open param1=$BASE_DIR/reports terminal=false"
 
-echo "---"
+echo "Accounts | color=#888888"
+echo "--Codex Setup | color=#888888"
+echo "----Setup GPT Pro 1 | bash=$BASE_DIR/bin/setup-review-profile.sh param1=codex param2=gpt-pro-1 terminal=true refresh=true"
+echo "----Setup GPT Pro 2 | bash=$BASE_DIR/bin/setup-review-profile.sh param1=codex param2=gpt-pro-2 terminal=true refresh=true"
+echo "--Antigravity Setup | color=#888888"
+echo "----Launch Google Pro 1 | bash=$BASE_DIR/bin/setup-review-profile.sh param1=antigravity param2=google-pro-1 terminal=false refresh=true"
+echo "----Launch Google Pro 2 | bash=$BASE_DIR/bin/setup-review-profile.sh param1=antigravity param2=google-pro-2 terminal=false refresh=true"
+echo "----Launch Google Pro 3 | bash=$BASE_DIR/bin/setup-review-profile.sh param1=antigravity param2=google-pro-3 terminal=false refresh=true"
+echo "--Danger Zone | color=#FF6B35"
+echo "----Clear Codex GPT Pro 1 | bash=$BASE_DIR/bin/clear-review-profile.sh param1=codex param2=gpt-pro-1 terminal=true refresh=true"
+echo "----Clear Codex GPT Pro 2 | bash=$BASE_DIR/bin/clear-review-profile.sh param1=codex param2=gpt-pro-2 terminal=true refresh=true"
+echo "----Clear Antigravity Google Pro 1 | bash=$BASE_DIR/bin/clear-review-profile.sh param1=antigravity param2=google-pro-1 terminal=true refresh=true"
+echo "----Clear Antigravity Google Pro 2 | bash=$BASE_DIR/bin/clear-review-profile.sh param1=antigravity param2=google-pro-2 terminal=true refresh=true"
+echo "----Clear Antigravity Google Pro 3 | bash=$BASE_DIR/bin/clear-review-profile.sh param1=antigravity param2=google-pro-3 terminal=true refresh=true"
 
-# --- App shortcuts ---
-echo "Open LM Studio | bash=$BASE_DIR/bin/open-lmstudio.sh terminal=false"
-echo "Open Logs | bash=/usr/bin/open param1=$BASE_DIR/logs terminal=false"
-
-if [ "$MODE" = "local" ]; then
-    echo "Re-apply Local Mode | bash=$BASE_DIR/bin/switch-local.sh terminal=false refresh=true"
-fi
+echo "Diagnostics | color=#888888"
+echo "--Open LM Studio | bash=$BASE_DIR/bin/open-lmstudio.sh terminal=false"
+echo "--Open Logs | bash=/usr/bin/open param1=$BASE_DIR/logs terminal=false"
